@@ -1,7 +1,7 @@
 # Front end build system
 To install, just select your project type and copy the `package.json` file and `Gulpfile.js` to the public root of your application, and update the `config` object where required.
 
-**Important**: If updating an existing site to the new build system, please ensure the templates point to the correct locations and file names, and run build test before pushing anything to live or testing sites.
+**Important**: If updating an existing site to the new build system, please ensure the website templates point to the correct locations and file names for CSS and JavaScript files, and run build test before pushing anything to live or testing sites.
 
 Note that for CSS authoring, autoprefixer is installed by default configured for 2 latest browser versions, so no prefixes or prefix mixins are required. Check [autoprefixer documentation](https://github.com/postcss/autoprefixer) to modify the support for older browsers.
 
