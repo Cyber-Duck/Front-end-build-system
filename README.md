@@ -1,4 +1,6 @@
 # Front end build system
+**Requirements**: You must have at least Node.js 5 installed, as many of the packages use JS Promises not available on older versions of Node, and Gulp 3.9.1 installed globally on your system, any other version will throw a mismatch error with local Gulp.
+
 To install, just select your project type and copy the `package.json` file and `Gulpfile.js` to the public root of your application, and update the `config` object where required.
 
 **Important**: If updating an existing site to the new build system, please ensure the website templates point to the correct locations and file names for CSS and JavaScript files, and run build test before pushing anything to live or testing sites.
