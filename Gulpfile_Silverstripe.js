@@ -3,7 +3,7 @@
  * Cyber-Duck Ltd - www.cyber-duck.co.uk
  */
 
-var gulp = require('gulp'),
+const gulp = require('gulp'),
     del = require('del'),
     autoprefixer = require('gulp-autoprefixer'),
     concat = require('gulp-concat'),
@@ -13,21 +13,24 @@ var gulp = require('gulp'),
     sass = require('gulp-sass'),
     sourcemaps = require('gulp-sourcemaps'),
     uglify = require('gulp-uglify'),
-    sync = require('browser-sync').create();
-    //watch = require('gulp-watch'),
+    watch = require('gulp-watch');
+    babel = require("gulp-babel");
+    // sync = require('browser-sync').create()
 
 
 
 /*
  * Main configuration object
  */
-var config = {
+const config = {
     scssDir: './themes/<theme>/scss',
-    jsDir: './themes/<theme>/js',
+    jsSrc: './themes/<theme>/js/src',
+    jsDest: './themes/<theme>/js/min',
     cssDir: './themes/<theme>/css',
     ssDir: './themes/<theme>/templates',
     imgSrc: './assets/Uploads'
 };
+
 
 
 
@@ -43,8 +46,8 @@ gulp.task('style-dev', function () {
         .on('error', sass.logError)
         .pipe(autoprefixer({browsers: ['last 2 versions'], cascade: false}))
         .pipe(sourcemaps.write('maps'))
-        .pipe(gulp.dest(config.cssDir))
-        .pipe(sync.stream());
+        .pipe(gulp.dest(config.cssDir));
+        // .pipe(sync.stream());
 });
 
 
@@ -53,30 +56,42 @@ gulp.task('style-dev', function () {
  * Compile Sass for production
  * with no sourcemaps and minified
  */
-gulp.task('style', function () {
+gulp.task('style', () => {
     'use strict';
     gulp.src(config.scssDir + '/*.scss')
         .pipe(sass())
         .on('error', sass.logError)
         .pipe(autoprefixer({browsers: ['last 2 versions'], cascade: false}))
-        .pipe(minify())
+        .pipe(minify({
+            zindex: false, 
+            discardComments: {
+                removeAll: true
+            }
+        }))
         .pipe(gulp.dest(config.cssDir));
 });
 
 
 
 /*
- * Concatenate JS files
+ * Concatenate and transpile JS files
  */
-gulp.task('js', function () {
+gulp.task('js', () => {
     'use strict';
     return gulp.src([
-        config.jsDir + '/src/start.js',
-        config.jsDir + '/src/main.js',
-        config.jsDir + '/src/end.js'
+        config.jsSrc + '/start.js',
+        config.jsSrc + '/main.js',
+        config.jsSrc + '/end.js'
     ])
+        .pipe(sourcemaps.init())
+        .pipe(babel())
+        .on('error', function(e) {
+            console.log('>>> ERROR', e);
+            this.emit('end');
+        })
         .pipe(concat('scripts.js'))
-        .pipe(gulp.dest(config.jsDir));
+        .pipe(sourcemaps.write('.'))
+        .pipe(gulp.dest(config.jsDest));
 });
 
 
@@ -84,23 +99,24 @@ gulp.task('js', function () {
 /*
  * Compress and rename JS files
  */
-gulp.task('compress', ['js'], function () {
+gulp.task('compress', ['js'], () => {
     'use strict';
-    return gulp.src(config.jsDir + '/scripts.js')
+    return gulp.src(config.jsSrc + '/scripts.js')
         .pipe(rename('scripts.min.js'))
         .pipe(uglify())
-        .pipe(gulp.dest(config.jsDir + '/min'));
+        .pipe(gulp.dest(config.jsDest + '/min'));
 });
 
 
 /*
  * Clean non used JS files, and sourcemaps for production
  */
-gulp.task('clean', ['style', 'compress'], function () {
+gulp.task('clean', ['style', 'compress'], () => {
     'use strict';
     del(config.cssDir + '/maps/*');
     del(config.cssDir + '/maps/');
-    del(config.jsDir + '/scripts.js');
+    // del(config.jsDest + '/scripts.js');
+    del(config.jsDest + '/scripts.js.map');
 });
 
 
@@ -108,7 +124,7 @@ gulp.task('clean', ['style', 'compress'], function () {
 /*
  * Optimise images uploaded in the CMS
  */
-gulp.task('imgoptim', function (cb) {
+gulp.task('imgoptim', (cb) => {
     'use strict';
     return gulp.src([
         config.imgSrc + '/**/*.png',
@@ -132,7 +148,7 @@ gulp.task('imgoptim', function (cb) {
  * Compress JS
  * Clean sourcemaps and uncompressed JS
 */
-gulp.task('build', function () {
+gulp.task('build', () => {
     'use strict';
     gulp.start('style');
     gulp.start('compress');
@@ -144,26 +160,26 @@ gulp.task('build', function () {
 /*
  * Reload task for JS files used by BrowserSync
  */
-gulp.task('js-sync', ['js'], function () {
-    'use strict';
-    sync.reload();
-});
+// gulp.task('js-sync', ['js'], () => {
+//     'use strict';
+//     sync.reload();
+// });
 
 
 
 /*
  * BrowserSync task, contains watchers for Sass, JS and Templates
  */
-gulp.task('browsersync', ['style-dev', 'js'], function () {
-    'use strict';
-    sync.init({
-        proxy: "domain.dev",
-        browser: "google chrome"
-    });
-    gulp.watch(config.ssDir + '/**/*.ss').on('change', sync.reload);
-    gulp.watch(config.scssDir + '/**/*.scss', ['style-dev']);
-    gulp.watch(config.jsDir + '/src/*.js', ['js-sync']);
-});
+// gulp.task('browsersync', ['style-dev', 'js'], () => {
+//     'use strict';
+//     sync.init({
+//         proxy: "domain.dev",
+//         browser: "google chrome"
+//     });
+//     gulp.watch(config.ssDir + '/**/*.ss').on('change', sync.reload);
+//     gulp.watch(config.scssDir + '/**/*.scss', ['style-dev']);
+//     gulp.watch(config.jsDir + '/src/*.js', ['js-sync']);
+// });
 
 
 
@@ -172,18 +188,18 @@ gulp.task('browsersync', ['style-dev', 'js'], function () {
  * This mode creates non compressed CSS, non compressed JS
  * and creates sourcemaps.
 */
-// gulp.task('watch', function() {
-//     'use strict';
-//     // Development task for compiling Sass
-//     watch(config.scssDir + '/**/*.scss', function () {
-//         gulp.start('style-dev');
-//     });
+gulp.task('watch', () => {
+    'use strict';
+    // Development task for compiling Sass
+    watch(config.scssDir + '/**/*.scss', () => {
+        gulp.start('style-dev');
+    });
 
-//     // Concatenating JS files, but not compressing
-//     watch(config.jsDir + '/src/*.js', function () {
-//         gulp.start('js');
-//     });
-// });
+    // Concatenating JS files, but not compressing
+    watch(config.jsSrc + '/*.js', () => {
+        gulp.start('js');
+    });
+});
 
 
 
