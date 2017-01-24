@@ -3,7 +3,7 @@
 
 **Requirements**: You must have at least Node.js 5.0 installed, as many of the packages use JS Promises not available on older versions of Node, and Gulp 3.9.1 installed globally on your system, any other version will throw a mismatch error with local Gulp.
 
-To install, just select your project type and copy/rename the `package.json` file and `Gulpfile.js` to the public root of your application, and update the `config` object where required. Once all variables are updated, navigate to the public folder of the project and run `npm install` to download all the packages. It may take a few minutes.
+To install, just select your project type and copy/rename the `package.json` file and `Gulpfile.js` to the public root of your application, and update the `config` object where required. Once all variables are updated, navigate to the public folder of the project and run `npm install` to download all the packages. It may take a few minutes. Remember to update the `package.json` file with your project details, as these are being used in the banner for the JS file.
 
 Note that for CSS authoring, autoprefixer is installed by default and configured for 2 latest browser versions, so no prefixes or prefix mixins are required. Check [autoprefixer documentation](https://github.com/postcss/autoprefixer) to modify the support for older browsers.
 
@@ -29,6 +29,8 @@ Note that for CSS authoring, autoprefixer is installed by default and configured
 **Concatenate JS files:** concatenates the specified JavaScript files in the given order. The idea is to keep JS files small and simple, and let this task join them into one. remember to add all the files you want to concatenate to the task.
 
 	$ gulp js
+
+Babel is running on the concatenated file, to transpile ES6 into browser ready code.
 
 -
 

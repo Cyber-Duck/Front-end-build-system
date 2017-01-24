@@ -3,7 +3,7 @@
  * Cyber-Duck Ltd - www.cyber-duck.co.uk
  */
 
-var gulp = require('gulp'),
+const gulp = require('gulp'),
     del = require('del'),
     autoprefixer = require('gulp-autoprefixer'),
     concat = require('gulp-concat'),
@@ -14,7 +14,9 @@ var gulp = require('gulp'),
     sourcemaps = require('gulp-sourcemaps'),
     uglify = require('gulp-uglify'),
     watch = require('gulp-watch'),
-    babel = require("gulp-babel");
+    babel = require("gulp-babel"),
+    header = require('gulp-header'),
+    pkg = require('./package.json');
     // sync = require('browser-sync').create()
 
 
@@ -22,7 +24,7 @@ var gulp = require('gulp'),
 /*
  * Main configuration object
  */
-var config = {
+const config = {
     scssDir: './resources/assets/scss',
     jsSrc: './resources/assets/js',
     jsDest: './public/assets/js',
@@ -37,8 +39,9 @@ var config = {
 /*
  * Compile Sass for development
  * with sourcemaps and not minified
+ * .pipe(sync.stream()); // If using BrowserSync, pipe at the end
  */
-gulp.task('style-dev', function () {
+gulp.task('style-dev', () => {
     'use strict';
     gulp.src(config.scssDir + '/*.scss')
         .pipe(sourcemaps.init())
@@ -47,7 +50,6 @@ gulp.task('style-dev', function () {
         .pipe(autoprefixer({browsers: ['last 2 versions'], cascade: false}))
         .pipe(sourcemaps.write('maps'))
         .pipe(gulp.dest(config.cssDir));
-        // .pipe(sync.stream());
 });
 
 
@@ -73,24 +75,35 @@ gulp.task('style', () => {
 
 
 
+
+/*
+ * Banner for JS file
+ */
+var banner = [
+  '/*',
+  ' * <%= pkg.name %> - <%= pkg.description %>',
+  ' * @author <%= pkg.author %>',
+  ' * @version v<%= pkg.version %>',
+  ' */',
+  ' \n'
+].join('\n');
+
+
+
+
 /*
  * Concatenate and transpile JS files
  */
 gulp.task('js', () => {
     'use strict';
-    return gulp.src([
-        config.jsSrc + '/start.js',
-        config.jsSrc + '/main.js',
-        config.jsSrc + '/end.js'
-    ])
-        .pipe(sourcemaps.init())
+    return gulp.src(config.jsSrc + '/main.js')
         .pipe(babel())
         .on('error', function(e) {
             console.log('>>> ERROR', e);
             this.emit('end');
         })
         .pipe(concat('scripts.js'))
-        .pipe(sourcemaps.write('.'))
+        .pipe(header(banner, {pkg: pkg}))
         .pipe(gulp.dest(config.jsDest));
 });
 
@@ -115,8 +128,6 @@ gulp.task('clean', ['style', 'compress'], () => {
     'use strict';
     del(config.cssDir + '/maps/*');
     del(config.cssDir + '/maps/');
-    // del(config.jsDest + '/scripts.js');
-    del(config.jsDest + '/scripts.js.map');
 });
 
 

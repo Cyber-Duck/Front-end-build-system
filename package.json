@@ -1,12 +1,12 @@
 {
-  "name": "",
-  "version": "1.0.0",
-  "description": "",
+  "name": "Febs",
+  "version": "1.1.1",
+  "description": "Front end buiding system",
   "main": "Gulpfile.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Ramon Lapenta <ramon@cyber-duck.co.uk>",
   "license": "ISC",
   "devDependencies": {
     "babel-cli": "^6.18.0",
@@ -14,8 +14,9 @@
     "browser-sync": "^2.11.2",
     "del": "^2.2.2",
     "gulp": "^3.9.1",
-    "gulp-babel": "^6.1.2",
     "gulp-autoprefixer": "^3.1.1",
+    "gulp-babel": "^6.1.2",
+    "gulp-header": "^1.8.8",
     "gulp-concat": "^2.6.1",
     "gulp-cssnano": "^2.1.2",
     "gulp-image-optimization": "^0.1.3",
