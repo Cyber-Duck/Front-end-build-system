@@ -1,5 +1,5 @@
 /*
- * Main Gulpfile for Laravel projects
+ * Main Gulpfile for Silverstripe projects
  * Cyber-Duck Ltd - www.cyber-duck.co.uk
  */
 
@@ -14,9 +14,9 @@ const gulp = require('gulp'),
     sourcemaps = require('gulp-sourcemaps'),
     uglify = require('gulp-uglify'),
     watch = require('gulp-watch'),
-    babel = require("gulp-babel"),
+    lint = require('gulp-eslint'),
     header = require('gulp-header'),
-    pkg = require('./package.json');
+    babel = require("gulp-babel");
     // sync = require('browser-sync').create()
 
 
@@ -25,6 +25,17 @@ const gulp = require('gulp'),
  * Main configuration object
  */
 const config = {
+    scssDir: './themes/<theme>/scss',
+    jsSrc: './themes/<theme>/js/src',
+    jsDest: './themes/<theme>/js/min',
+    cssDir: './themes/<theme>/css',
+    ssDir: './themes/<theme>/templates',
+    imgSrc: './assets/Uploads'
+};
+
+/*
+ * Main configuration object (Laravel project)
+const config = {
     scssDir: './resources/assets/scss',
     jsSrc: './resources/assets/js',
     jsDest: './public/assets/js',
@@ -32,16 +43,15 @@ const config = {
     tplDir: './resources/views',
     imgSrc: './public/assets/img'
 };
-
+ */
 
 
 
 /*
  * Compile Sass for development
  * with sourcemaps and not minified
- * .pipe(sync.stream()); // If using BrowserSync, pipe at the end
  */
-gulp.task('style-dev', () => {
+gulp.task('style-dev', function () {
     'use strict';
     gulp.src(config.scssDir + '/*.scss')
         .pipe(sourcemaps.init())
@@ -50,6 +60,7 @@ gulp.task('style-dev', () => {
         .pipe(autoprefixer({browsers: ['last 2 versions'], cascade: false}))
         .pipe(sourcemaps.write('maps'))
         .pipe(gulp.dest(config.cssDir));
+        // .pipe(sync.stream());
 });
 
 
@@ -75,7 +86,6 @@ gulp.task('style', () => {
 
 
 
-
 /*
  * Banner for JS file
  */
@@ -90,13 +100,17 @@ var banner = [
 
 
 
-
 /*
  * Concatenate and transpile JS files
  */
 gulp.task('js', () => {
     'use strict';
-    return gulp.src(config.jsSrc + '/main.js')
+    return gulp.src([
+        config.jsSrc + '/start.js',
+        config.jsSrc + '/main.js',
+        config.jsSrc + '/end.js'
+    ])
+        .pipe(sourcemaps.init())
         .pipe(babel())
         .on('error', function(e) {
             console.log('>>> ERROR', e);
@@ -104,6 +118,7 @@ gulp.task('js', () => {
         })
         .pipe(concat('scripts.js'))
         .pipe(header(banner, {pkg: pkg}))
+        .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest(config.jsDest));
 });
 
@@ -122,12 +137,27 @@ gulp.task('compress', ['js'], () => {
 
 
 /*
+ * Lint JS using ES Lint
+ */
+gulp.task('lint', ['js'], () => {
+    return gulp.src(config.jsSrc + '/scripts.js')
+        .pipe(eslint({
+            configFilePath: './eslintrc'
+        }))
+        .pipe(eslint.format())
+        .pipe(eslint.failAfterError());
+});
+
+
+/*
  * Clean non used JS files, and sourcemaps for production
  */
 gulp.task('clean', ['style', 'compress'], () => {
     'use strict';
     del(config.cssDir + '/maps/*');
     del(config.cssDir + '/maps/');
+    // del(config.jsDest + '/scripts.js');
+    del(config.jsDest + '/scripts.js.map');
 });
 
 
