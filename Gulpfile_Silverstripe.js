@@ -13,7 +13,8 @@ const gulp = require('gulp'),
     sass = require('gulp-sass'),
     sourcemaps = require('gulp-sourcemaps'),
     uglify = require('gulp-uglify'),
-    watch = require('gulp-watch');
+    watch = require('gulp-watch'),
+    lint = require('gulp-eslint'),
     babel = require("gulp-babel");
     // sync = require('browser-sync').create()
 
@@ -105,6 +106,19 @@ gulp.task('compress', ['js'], () => {
         .pipe(rename('scripts.min.js'))
         .pipe(uglify())
         .pipe(gulp.dest(config.jsDest + '/min'));
+});
+
+
+/*
+ * Lint JS using ES Lint
+ */
+gulp.task('lint', ['js'], () => {
+    return gulp.src(config.jsSrc + '/scripts.js')
+        .pipe(eslint({
+            configFilePath: './eslintrc'
+        }))
+        .pipe(eslint.format())
+        .pipe(eslint.failAfterError());
 });
 
 
