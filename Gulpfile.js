@@ -16,34 +16,23 @@ const gulp = require('gulp'),
     watch = require('gulp-watch'),
     lint = require('gulp-eslint'),
     header = require('gulp-header'),
+    footer = require('gulp-footer'),
     babel = require("gulp-babel");
     // sync = require('browser-sync').create()
 
-
+const pkg = require('./package.json');
 
 /*
  * Main configuration object
  */
 const config = {
-    scssDir: './themes/<theme>/scss',
-    jsSrc: './themes/<theme>/js/src',
-    jsDest: './themes/<theme>/js/min',
-    cssDir: './themes/<theme>/css',
-    ssDir: './themes/<theme>/templates',
-    imgSrc: './assets/Uploads'
+    scssDir: './public/scss',
+    jsSrc: './public/js/src',
+    jsDest: './public/js/min',
+    cssDir: './public/css',
+    tplDir: '',
+    imgSrc: ''
 };
-
-/*
- * Main configuration object (Laravel project)
-const config = {
-    scssDir: './resources/assets/scss',
-    jsSrc: './resources/assets/js',
-    jsDest: './public/assets/js',
-    cssDir: './public/assets/css',
-    tplDir: './resources/views',
-    imgSrc: './public/assets/img'
-};
- */
 
 
 
@@ -89,13 +78,33 @@ gulp.task('style', () => {
 /*
  * Banner for JS file
  */
-var banner = [
+var topBanner = [
   '/*',
-  ' * <%= pkg.name %> - <%= pkg.description %>',
+  ' * <%= pkg.name %>',
+  ' * <%= pkg.description %>',
   ' * @author <%= pkg.author %>',
   ' * @version v<%= pkg.version %>',
   ' */',
+  ' \n',
+  '$(document).ready(function () {',
   ' \n'
+].join('\n');
+
+
+
+/*
+ * End of JS file
+ */
+let date = new Date();
+var now = date.getDay() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear() + " @ " + date.getHours() + ":" + date.getMinutes();
+
+var bottomBanner = [
+  ' \n',
+  '/*',
+  ' * Last updated: ' + now,
+  ' */',
+  ' \n',
+  '});'
 ].join('\n');
 
 
@@ -105,11 +114,7 @@ var banner = [
  */
 gulp.task('js', () => {
     'use strict';
-    return gulp.src([
-        config.jsSrc + '/start.js',
-        config.jsSrc + '/main.js',
-        config.jsSrc + '/end.js'
-    ])
+    return gulp.src(config.jsSrc + '/main.js')
         .pipe(sourcemaps.init())
         .pipe(babel())
         .on('error', function(e) {
@@ -117,7 +122,8 @@ gulp.task('js', () => {
             this.emit('end');
         })
         .pipe(concat('scripts.js'))
-        .pipe(header(banner, {pkg: pkg}))
+        .pipe(header(topBanner, {pkg: pkg}))
+        .pipe(footer(bottomBanner))
         .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest(config.jsDest));
 });
@@ -129,24 +135,22 @@ gulp.task('js', () => {
  */
 gulp.task('compress', ['js'], () => {
     'use strict';
-    return gulp.src(config.jsSrc + '/scripts.js')
+    return gulp.src(config.jsDest + '/scripts.js')
         .pipe(rename('scripts.min.js'))
         .pipe(uglify())
-        .pipe(gulp.dest(config.jsDest + '/min'));
+        .pipe(gulp.dest(config.jsDest));
 });
 
 
 /*
  * Lint JS using ES Lint
+ * NOT READY FOR USE
  */
-gulp.task('lint', ['js'], () => {
-    return gulp.src(config.jsSrc + '/scripts.js')
-        .pipe(eslint({
-            configFilePath: './eslintrc'
-        }))
-        .pipe(eslint.format())
-        .pipe(eslint.failAfterError());
-});
+// gulp.task('lint', () => {
+//     return gulp.src(config.jsDest + '/scripts.js')
+//         .pipe(lint.format())
+//         .pipe(lint.failAfterError());
+// });
 
 
 /*
@@ -156,7 +160,7 @@ gulp.task('clean', ['style', 'compress'], () => {
     'use strict';
     del(config.cssDir + '/maps/*');
     del(config.cssDir + '/maps/');
-    // del(config.jsDest + '/scripts.js');
+    del(config.jsDest + '/scripts.js');
     del(config.jsDest + '/scripts.js.map');
 });
 
@@ -217,7 +221,7 @@ gulp.task('build', () => {
 //         proxy: "domain.dev",
 //         browser: "google chrome"
 //     });
-//     gulp.watch(config.ssDir + '/**/*.ss').on('change', sync.reload);
+//     gulp.watch(config.tplDir + '/**/*.ss').on('change', sync.reload);
 //     gulp.watch(config.scssDir + '/**/*.scss', ['style-dev']);
 //     gulp.watch(config.jsDir + '/src/*.js', ['js-sync']);
 // });

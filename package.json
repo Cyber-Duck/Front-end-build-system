@@ -1,16 +1,13 @@
 {
   "name": "Febs",
   "version": "1.1.1",
-  "description": "Front end buiding system",
+  "description": "Cyber-Duck front end buiding system",
   "main": "Gulpfile.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "author": "Ramon Lapenta <ramon@cyber-duck.co.uk>",
   "license": "ISC",
   "devDependencies": {
     "babel-cli": "^6.24.1",
-    "babel-preset-env": "^1.3.3",
+    "babel-preset-es2015": "^6.24.1",
     "browser-sync": "^2.18.8",
     "del": "^2.2.2",
     "gulp": "^3.9.1",
