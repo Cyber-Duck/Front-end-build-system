@@ -14,7 +14,7 @@ const gulp = require('gulp'),
     sourcemaps = require('gulp-sourcemaps'),
     uglify = require('gulp-uglify'),
     watch = require('gulp-watch'),
-    lint = require('gulp-eslint'),
+    eslint = require('gulp-eslint'),
     header = require('gulp-header'),
     footer = require('gulp-footer'),
     babel = require("gulp-babel");
@@ -84,10 +84,8 @@ var topBanner = [
   ' * <%= pkg.description %>',
   ' * @author <%= pkg.author %>',
   ' * @version v<%= pkg.version %>',
-  ' */',
-  ' \n',
-  '$(document).ready(function () {',
-  ' \n'
+  ' */\n',
+  '$(document).ready(function () {'
 ].join('\n');
 
 
@@ -99,11 +97,10 @@ let date = new Date();
 var now = date.getDay() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear() + " @ " + date.getHours() + ":" + date.getMinutes();
 
 var bottomBanner = [
-  ' \n',
+  '\n',
   '/*',
   ' * Last updated: ' + now,
   ' */',
-  ' \n',
   '});'
 ].join('\n');
 
@@ -144,14 +141,13 @@ gulp.task('compress', ['js'], () => {
 
 /*
  * Lint JS using ES Lint
- * NOT READY FOR USE
  */
-// gulp.task('lint', () => {
-//     return gulp.src(config.jsDest + '/scripts.js')
-//         .pipe(lint.format())
-//         .pipe(lint.failAfterError());
-// });
-
+gulp.task('lint', function() {
+    return gulp.src(config.jsSrc + '/*.js')
+        .pipe(eslint())
+        .pipe(eslint.format())
+        .pipe(eslint.failOnError());
+});
 
 /*
  * Clean non used JS files, and sourcemaps for production
