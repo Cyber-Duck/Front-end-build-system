@@ -20,13 +20,17 @@ Note that for CSS authoring, autoprefixer is installed by default and configured
 
 -
 
-**Sass compiling for production:** compiles sass with no sourcemaps, and runs `css-nano` to compress the output.
+**Sass compiling for production:** compiles sass with no sourcemaps, and runs `css-nano` to minify/compress the output with no sourcemaps.
 
 	$ gulp style
 
 -
 
 **Concatenate JS files:** concatenates the specified JavaScript files in the given order. The idea is to keep JS files small and simple, and let this task join them into one. remember to add all the files you want to concatenate to the task.
+
+The contents of the `topBanner` and `bottomBanner` variables are included at the top and bottom of the concatenated javascript file. This can be used to add opening and closing statements to the end scripts file.
+
+The task to concatenate js files is: 
 
 	$ gulp js
 
@@ -37,6 +41,12 @@ Babel is running on the concatenated file, to transpile ES6 into browser ready c
 **Compress JS:** runs the UglifyJS parser/mangler/compressor library on the concatenated JavaScript file, and creates a copy renamed to `scripts.min.js` inside the /js/min/ folder. Note that this task has the previous task as a dependency, so it will trigger it first and for it to finish before running.
 
 	$ gulp compress
+
+-
+
+**ES Lint:** runs ES Lint in all the files within the `src` folder defined in the config, the rules are saved in the `.eslintrc.json` file and can be adapted to the needs of the project.
+
+	$ gulp lint
 
 -
 
@@ -64,32 +74,20 @@ Babel is running on the concatenated file, to transpile ES6 into browser ready c
 
 
 
-**Unused: Watch task:** watches for changes on Sass files to run the `style-dev` task, or changes in JS files to run `js` task. Not used if the BrowserSync task is active, as both ot them watch the same files and run the same tasks.
+**Watch task:** watches for changes on Sass files to run the `style-dev` task, or changes in JS files to run `js` task. Should not used if the BrowserSync task is active, as both ot them watch the same files and run the same tasks.
 
 	$ gulp watch
 
 -
-## Silverstripe configuration
-Replace the `<theme>` with the real name of your theme in the `config` object.
+## Project configuration
+Update all the paths to point to the location of the current project.
 
     var config = {
-        scssDir: './themes/<theme>/scss',
-        jsDir: './themes/<theme>/js',
-        cssDir: './themes/<theme>/css',
-        ssDir: './themes/<theme>/templates',
-        imgSrc: './assets/Uploads'
-    };
-
-## Laravel configuration
-You shouldn't need to change anything here, unless your project hs a different structure.
-
-    var config = {
-        scssDir: './resources/assets/scss',
-        jsSrc: './resources/assets/js',
-        jsDest: './public/assets/js',
-        cssDir: './public/assets/css',
-        tplDir: './resources/views',
-        imgSrc: './public/assets/img'
+        scssDir: '/scss',
+        jsDir: '/js',
+        cssDir: '/css',
+        tplDir: '/templates',
+        imgSrc: './assets/'
     };
 
 

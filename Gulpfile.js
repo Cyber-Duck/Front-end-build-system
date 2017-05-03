@@ -26,12 +26,12 @@ const pkg = require('./package.json');
  * Main configuration object
  */
 const config = {
-    scssDir: './public/scss',
-    jsSrc: './public/js/src',
-    jsDest: './public/js/min',
-    cssDir: './public/css',
+    scssDir: '/scss',
+    jsSrc: '/js/src',
+    jsDest: '/js/min',
+    cssDir: '/css',
     tplDir: '',
-    imgSrc: ''
+    imgSrc: '/img'
 };
 
 
@@ -42,7 +42,7 @@ const config = {
  */
 gulp.task('style-dev', function () {
     'use strict';
-    gulp.src(config.scssDir + '/*.scss')
+    return gulp.src(config.scssDir + '/*.scss')
         .pipe(sourcemaps.init())
         .pipe(sass())
         .on('error', sass.logError)
@@ -60,7 +60,7 @@ gulp.task('style-dev', function () {
  */
 gulp.task('style', () => {
     'use strict';
-    gulp.src(config.scssDir + '/*.scss')
+    return gulp.src(config.scssDir + '/*.scss')
         .pipe(sass())
         .on('error', sass.logError)
         .pipe(autoprefixer({browsers: ['last 2 versions'], cascade: false}))
