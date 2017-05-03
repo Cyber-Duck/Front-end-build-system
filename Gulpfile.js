@@ -1,5 +1,5 @@
 /*
- * Main Gulpfile for Silverstripe projects
+ * Main Gulpfile for any type of projects
  * Cyber-Duck Ltd - www.cyber-duck.co.uk
  */
 
@@ -17,10 +17,10 @@ const gulp = require('gulp'),
     eslint = require('gulp-eslint'),
     header = require('gulp-header'),
     footer = require('gulp-footer'),
-    babel = require("gulp-babel");
+    babel = require("gulp-babel"),
+    pkg = require('./package.json');
     // sync = require('browser-sync').create()
 
-const pkg = require('./package.json');
 
 /*
  * Main configuration object
@@ -40,7 +40,7 @@ const config = {
  * Compile Sass for development
  * with sourcemaps and not minified
  */
-gulp.task('style-dev', function () {
+gulp.task('style-dev', () => {
     'use strict';
     return gulp.src(config.scssDir + '/*.scss')
         .pipe(sourcemaps.init())
@@ -78,15 +78,14 @@ gulp.task('style', () => {
 /*
  * Banner for JS file
  */
-var topBanner = [
-  '/*',
-  ' * <%= pkg.name %>',
-  ' * <%= pkg.description %>',
-  ' * @author <%= pkg.author %>',
-  ' * @version v<%= pkg.version %>',
-  ' */\n',
-  '$(document).ready(function () {'
-].join('\n');
+let topBanner = `/*
+ * <%= pkg.name %>
+ * <%= pkg.description %>
+ * @version v<%= pkg.version %>
+ */
+
+$(document).ready(function () {
+`;
 
 
 
@@ -94,15 +93,20 @@ var topBanner = [
  * End of JS file
  */
 let date = new Date();
-var now = date.getDay() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear() + " @ " + date.getHours() + ":" + date.getMinutes();
+let day = String('00' + date.getDay()).slice(- 2);
+let month = String('00' + date.getMonth()).slice(- 2);
+let year = date.getFullYear();
+let hour = String('00' + date.getHours()).slice(- 2);
+let minute = String('00' + date.getMinutes()).slice(- 2);
 
-var bottomBanner = [
-  '\n',
-  '/*',
-  ' * Last updated: ' + now,
-  ' */',
-  '});'
-].join('\n');
+let now = `${day}/${month}/${year} @ ${hour}:${minute}`;
+
+let bottomBanner = `
+/*
+ * Last updated: ${now}
+ */
+});`;
+
 
 
 
@@ -114,7 +118,7 @@ gulp.task('js', () => {
     return gulp.src(config.jsSrc + '/main.js')
         .pipe(sourcemaps.init())
         .pipe(babel())
-        .on('error', function(e) {
+        .on('error', (e) => {
             console.log('>>> ERROR', e);
             this.emit('end');
         })
@@ -142,7 +146,7 @@ gulp.task('compress', ['js'], () => {
 /*
  * Lint JS using ES Lint
  */
-gulp.task('lint', function() {
+gulp.task('lint', () => {
     return gulp.src(config.jsSrc + '/*.js')
         .pipe(eslint())
         .pipe(eslint.format())
