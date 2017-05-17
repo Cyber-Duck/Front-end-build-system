@@ -15,6 +15,7 @@ const gulp = require('gulp'),
     uglify = require('gulp-uglify'),
     watch = require('gulp-watch'),
     eslint = require('gulp-eslint'),
+    csslint = require('gulp-stylelint'),
     header = require('gulp-header'),
     footer = require('gulp-footer'),
     babel = require("gulp-babel"),
@@ -26,12 +27,12 @@ const gulp = require('gulp'),
  * Main configuration object
  */
 const config = {
-    scssDir: '/scss',
-    jsSrc: '/js/src',
-    jsDest: '/js/min',
-    cssDir: '/css',
+    scssDir: './public/scss',
+    jsSrc: './public/js/src',
+    jsDest: './public/js/min',
+    cssDir: './public/css',
     tplDir: '',
-    imgSrc: '/img'
+    imgSrc: './public/img'
 };
 
 
@@ -115,14 +116,18 @@ let bottomBanner = `
  */
 gulp.task('js', () => {
     'use strict';
-    return gulp.src(config.jsSrc + '/main.js')
+    return gulp.src([
+            config.jsSrc + '/main.js', 
+            config.jsSrc + '/another.js', 
+            config.jsSrc + '/test.js'
+        ])
         .pipe(sourcemaps.init())
+        .pipe(concat('scripts.js'))
         .pipe(babel())
         .on('error', (e) => {
             console.log('>>> ERROR', e);
             this.emit('end');
         })
-        .pipe(concat('scripts.js'))
         .pipe(header(topBanner, {pkg: pkg}))
         .pipe(footer(bottomBanner))
         .pipe(sourcemaps.write('.'))
@@ -143,15 +148,31 @@ gulp.task('compress', ['js'], () => {
 });
 
 
-/*
- * Lint JS using ES Lint
- */
 gulp.task('lint', () => {
     return gulp.src(config.jsSrc + '/*.js')
         .pipe(eslint())
         .pipe(eslint.format())
         .pipe(eslint.failOnError());
 });
+
+
+
+/*
+ * Lint CSS/Scss using Style Lint
+ */
+gulp.task('lint-css', function lintCssTask() {
+    return gulp.src(config.scssDir + '/**/*.scss')
+        .pipe(csslint({
+            failAfterError: true,
+            reportOutputDir: 'reports/lint',
+            reporters: [
+                {formatter: 'verbose', console: true},
+                {formatter: 'json', save: 'report.json'},
+            ],
+        debug: true
+    }));
+});
+
 
 /*
  * Clean non used JS files, and sourcemaps for production
