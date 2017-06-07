@@ -38,6 +38,22 @@ const config = {
 
 
 /*
+ * Current date 
+ */
+let date = new Date();
+let day = String('00' + date.getDay()).slice(- 2);
+let month = String('00' + date.getMonth()).slice(- 2);
+let year = date.getFullYear();
+let hour = String('00' + date.getHours()).slice(- 2);
+let minute = String('00' + date.getMinutes()).slice(- 2);
+let second = String('00' + date.getSeconds()).slice(- 2);
+
+let now = `${day}/${month}/${year} @ ${hour}:${minute}`;
+let nowHash = `${year}${month}${day}${hour}${minute}${second}`;
+
+
+
+/*
  * Compile Sass for development
  * with sourcemaps and not minified
  */
@@ -77,6 +93,28 @@ gulp.task('style', () => {
 
 
 /*
+ * Inject stylesheet and scripts to file
+ */
+gulp.task('injectCss', () => {
+    'use strict';
+    let stylesheet = RegExp('style.([0-9]+).css');
+    return gulp.src(config.tplDir + 'index.php')
+        .pipe(inject.replace(stylesheet, 'style.' + nowHash + '.css'))
+        .pipe(gulp.dest(config.tplDir));
+});
+gulp.task('injectJs', () => {
+    'use strict';
+    let scriptMin = RegExp('scripts.([0-9]+).min.js');
+    let script = RegExp('scripts.([0-9]+).js');
+    return gulp.src(config.tplDir + 'index.php')
+        .pipe(inject.replace(scriptMin, 'scripts.' + nowHash + '.min.js'))
+        .pipe(inject.replace(script, 'scripts.' + nowHash + '.js'))
+        .pipe(gulp.dest(config.tplDir));
+});
+
+
+
+/*
  * Banner for JS file
  */
 let topBanner = `/*
@@ -93,15 +131,6 @@ $(document).ready(function () {
 /*
  * End of JS file
  */
-let date = new Date();
-let day = String('00' + date.getDay()).slice(- 2);
-let month = String('00' + date.getMonth()).slice(- 2);
-let year = date.getFullYear();
-let hour = String('00' + date.getHours()).slice(- 2);
-let minute = String('00' + date.getMinutes()).slice(- 2);
-
-let now = `${day}/${month}/${year} @ ${hour}:${minute}`;
-
 let bottomBanner = `
 /*
  * Last updated: ${now}
@@ -218,6 +247,8 @@ gulp.task('build', () => {
     'use strict';
     gulp.start('style');
     gulp.start('compress');
+    // gulp.start('injectCss');
+    // gulp.start('injectJs');
     gulp.start('clean');
 });
 
@@ -259,13 +290,16 @@ gulp.task('watch', () => {
     // Development task for compiling Sass
     watch(config.scssDir + '/**/*.scss', () => {
         gulp.start('style-dev');
+        // gulp.start('injectCss');
     });
 
     // Concatenating JS files, but not compressing
     watch(config.jsSrc + '/*.js', () => {
         gulp.start('js');
+        // gulp.start('injectJs');
     });
 });
+
 
 
 

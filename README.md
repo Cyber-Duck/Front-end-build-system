@@ -109,3 +109,15 @@ Can be uncommented if the BrowserSync option is not going to be used, as they bo
 
 ## Extending the build system
 This build system uses basic Gulp and NPM packages. To add more tasks and packages just install them using NPM and add them to the Gulpfile using require. If you need anything to be permanently added to the build system, create a pull request or let us know.
+
+## Experimental
+We've added a cache busting feature to the build system which injects the current time as part of the filename, to make use of this please make sure you adapt the inject tasks to match your filesas the task expects to find a filename as shown below:
+
+	style.20170503121812.css
+
+So it can replace it contantly every time the file gets compiled.
+
+To make the browser pull the files, you also need to add this to the `.htaccess` file:
+
+    RewriteRule ^assets\/css\/style.([0-9]+).css$ /assets/css/style.css [L]
+    RewriteRule ^assets\/(js|js\/min)\/scripts.([0-9]+).(js|min.js)$ /assets/$1/scripts.$3 [L]
