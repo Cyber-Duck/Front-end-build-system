@@ -8,7 +8,7 @@ const gulp = require('gulp'),
     autoprefixer = require('gulp-autoprefixer'),
     concat = require('gulp-concat'),
     minify = require('gulp-cssnano'),
-    imageop = require('gulp-image-optimization'),
+    tinypng = require('gulp-tinypng'),
     rename = require("gulp-rename"),
     sass = require('gulp-sass'),
     sourcemaps = require('gulp-sourcemaps'),
@@ -217,22 +217,17 @@ gulp.task('clean', ['style', 'compress'], () => {
 
 
 /*
- * Optimise images uploaded in the CMS
+ * Optimise images using TinyPNG API
  */
-gulp.task('imgoptim', (cb) => {
+gulp.task('tinypng', function () {
     'use strict';
     return gulp.src([
         config.imgSrc + '/**/*.png',
         config.imgSrc + '/**/*.jpg',
-        config.imgSrc + '/**/*.gif',
         config.imgSrc + '/**/*.jpeg'
     ])
-        .pipe(imageop({
-            optimizationLevel: 5,
-            progressive: true,
-            interlaced: true
-        }))
-        .pipe(gulp.dest(config.imgSrc)).on('end', cb).on('error', cb);
+        .pipe(tinypng('API_KEY'))
+        .pipe(gulp.dest(config.imgSrc));
 });
 
 

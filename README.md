@@ -56,9 +56,9 @@ Babel is running on the concatenated file, to transpile ES6 into browser ready c
 
 -
 
-**Image optimisation:** optimises .png, .jpg, .jpeg, and .gif files using lossless image compression algorythms, from the plugin `gulp-imageoptim`. This task does not run automatically, as it is designed to optimise assets uploaded by the client using a cron job. If you need to optimise theme assets, you can add the respective paths to the task.
+**TinyPNG:** optimises .png, .jpg and .jpeg files using lossless image compression TinyPNG API. This task does not run automatically, so you have to run it manually when required. The task runs over the directory defined in the config. **Important:** this task requires an API key to run, you can get one for free at tinypng.com.
 
-	$ gulp imgoptim
+	$ gulp tinypng
 
 -
 
