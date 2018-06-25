@@ -41,12 +41,12 @@ const config = {
  * Current date 
  */
 let date = new Date();
-let day = String('00' + date.getDay()).slice(- 2);
-let month = String('00' + date.getMonth()).slice(- 2);
+let day = String('00' + date.getDate()).slice(-2);
+let month = String('00' + (date.getMonth() + 1)).slice(-2);
 let year = date.getFullYear();
-let hour = String('00' + date.getHours()).slice(- 2);
-let minute = String('00' + date.getMinutes()).slice(- 2);
-let second = String('00' + date.getSeconds()).slice(- 2);
+let hour = String('00' + date.getHours()).slice(-2);
+let minute = String('00' + date.getMinutes()).slice(-2);
+let second = String('00' + date.getSeconds()).slice(-2);
 
 let now = `${day}/${month}/${year} @ ${hour}:${minute}`;
 let nowHash = `${year}${month}${day}${hour}${minute}${second}`;
