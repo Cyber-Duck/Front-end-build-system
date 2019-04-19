@@ -1,14 +1,14 @@
 # CD Front end build system
 **Important**: If updating an existing site to the new build system, please ensure the website templates point to the correct locations and file names for CSS and JavaScript files, since they may have changed from previous locations/build systems. Also, run the `gulp build` task and test before pushing anything to live or testing sites.
 
-**Requirements**: You must have at least Node.js 5.0 installed, as many of the packages use JS Promises not available on older versions of Node, and Gulp 3.9.1 installed globally on your system, any other version will throw a mismatch error with local Gulp.
+**Requirements**: You must have at least Node.js 8.0 installed, as many of the packages use JS Promises not available on older versions of Node, and Gulp 4 installed globally on your system, any other version will throw a mismatch error with local Gulp.
 
-To install, just select your project type and copy/rename the `package.json` file and `Gulpfile.js` to the public root of your application, and update the `config` object where required. Once all variables are updated, navigate to the public folder of the project and run `npm install` to download all the packages. It may take a few minutes. Remember to update the `package.json` file with your project details, as these are being used in the banner for the JS file.
+To install, just copy the `package.json` file and `Gulpfile.js` to the public root of your application, and update the `config` object where required. Once all variables are updated, navigate to the public folder of the project and run `npm install` to download all the packages. It may take a few minutes. Remember to update the top of the `package.json` file with your project details, as these are being used in the banner for the JS files.
 
 Note that for CSS authoring, autoprefixer is installed by default and configured for 2 latest browser versions, so no prefixes or prefix mixins are required. Check [autoprefixer documentation](https://github.com/postcss/autoprefixer) to modify the support for older browsers.
 
 ## Available tasks
-**Gulp default task:** runs the build task used for production, described below.
+**Gulp default task:** runs the watch task used for development, described below.
 	
 	$ gulp
 
@@ -16,13 +16,13 @@ Note that for CSS authoring, autoprefixer is installed by default and configured
 
 **Sass compiling for development:** compiles Sass files in expanded mode, generates CSS sourcemaps (in /css/maps/).
 
-	$ gulp style-dev
+	$ gulp cssDev
 
 -
 
 **Sass compiling for production:** compiles sass with no sourcemaps, and runs `css-nano` to minify/compress the output with no sourcemaps.
 
-	$ gulp style
+	$ gulp css
 
 -
 
@@ -44,12 +44,6 @@ Babel is running on the concatenated file, to transpile ES6 into browser ready c
 
 -
 
-**ES Lint:** runs ES Lint in all the files within the `src` folder defined in the config, the rules are saved in the `.eslintrc.json` file and can be adapted to the needs of the project.
-
-	$ gulp lint
-
--
-
 **Clean task:** removes the unused uncompressed scripts.js file, and the CSS sourcemaps created in the /css/maps/ folder. This task will trigger the production `style` task and `compress` task before running, to ensure the production ready assets are in place before removing the extra files.
 
 	$ gulp clean
@@ -66,46 +60,33 @@ Babel is running on the concatenated file, to transpile ES6 into browser ready c
 
 	$ gulp build
 
--
-
-**BrowserSync:** creates a local server wrapping your specified local domain, and opens up the specified browser(s) and watches for changes to templates, Sass and JS files, to reload the synced browsers or inject the CSS changes directly.
-
-	$ gulp browsersync
-
-
-
 **Watch task:** watches for changes on Sass files to run the `style-dev` task, or changes in JS files to run `js` task. Should not used if the BrowserSync task is active, as both ot them watch the same files and run the same tasks.
 
 	$ gulp watch
 
 -
 ## Project configuration
-Update all the paths to point to the location of the current project.
+Update all the paths to point to the location of the current project and some other project specific details.
 
-    var config = {
-        scssDir: '/scss',
-        jsDir: '/js',
-        cssDir: '/css',
-        tplDir: '/templates',
-        imgSrc: './assets/'
-    };
+	const config = {
+	    scssDir: './public/scss',
+	    jsSrc: './public/js/src',
+	    jsDest: './public/js/min',
+	    cssDir: './public/css',
+	    tplDir: './public/',
+	    tplName: 'index.html',
+	    imgSrc: './public/img',
+	    tinyPngApiKey: '',
+	    injectAssets: true
+	};
 
+JavaScript configuration object, define the files to be concatenated.
 
-### BrowserSync task
-Replace the value of the proxy with the real domain used. This task will create a server wrapping your vhost. This server  will be available at `http://localhost:3000`, and it will show the site hosted at the local domain specified. I
-
-    proxy: "domain.dev"
-
-If no local domain has been set up, it's still possible to use **BrowserSync**. The task can create a development server for static files replacing the `proxy` with a `server` property, and using `baseDir` to point the server to the where the static files are:
-
-    server: {
-		baseDir: "./"
-	}
-
-Please note that if you are working with static files, you may need to update the watcher as well, to point to the static files instead of the templates. Also, if you can specify your preferred development browser in the `browser` property with `browser: "google chrome"`, or even add more than one using an array `browser: ["google chrome", "firefox"]`.
-
-### Watch task
-Can be uncommented if the BrowserSync option is not going to be used, as they both watch over the same files.
+	const jsFiles = [
+	    config.jsSrc + '/main.js', 
+	    config.jsSrc + '/another.js', 
+	    config.jsSrc + '/test.js'
+	];
 
 ## Extending the build system
 This build system uses basic Gulp and NPM packages. To add more tasks and packages just install them using NPM and add them to the Gulpfile using require. If you need anything to be permanently added to the build system, create a pull request or let us know.
@@ -117,7 +98,7 @@ We've added a cache busting feature to the build system which injects the curren
 
 So it can replace it contantly every time the file gets compiled.
 
-To make the browser pull the files, you also need to add this to the `.htaccess` file:
+To make the browser pull the correct files, you also need to add this to the `.htaccess` file:
 
     RewriteRule ^assets\/css\/style.([0-9]+).css$ /assets/css/style.css [L]
     RewriteRule ^assets\/(js|js\/min)\/scripts.([0-9]+).(js|min.js)$ /assets/$1/scripts.$3 [L]
