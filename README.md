@@ -8,25 +8,25 @@ To install, just copy the `package.json` file and `Gulpfile.js` to the public ro
 Note that for CSS authoring, autoprefixer is installed by default and configured for 2 latest browser versions, so no prefixes or prefix mixins are required. Check [autoprefixer documentation](https://github.com/postcss/autoprefixer) to modify the support for older browsers.
 
 ## Available tasks
-**Gulp default task:** runs the watch task used for development, described below.
+**Gulp default task:** runs the watch task used for development. It watches for changes on Sass files to run the `style-dev` task, or changes in JS files to run `js` task. It also runs the cache busting tasks (injectCss & injectJs) if selected in the config object.
 	
 	$ gulp
 
 -
 
-**Sass compiling for development:** compiles Sass files in expanded mode, generates CSS sourcemaps (in /css/maps/).
+**Sass compiling for development:** compiles Sass files in expanded mode, generates CSS sourcemaps (in /css/maps/). This task runs automatically with the `watch` task (default). Note that PostCSS / Autoprefixer is added by default, so no need to manually add vendor prefixes. This is configurable in the task itself.
 
 	$ gulp cssDev
 
 -
 
-**Sass compiling for production:** compiles sass with no sourcemaps, and runs `css-nano` to minify/compress the output with no sourcemaps.
+**Sass compiling for production:** compiles sass with no sourcemaps, and runs `css-nano` to minify/compress the output with no sourcemaps. Runs with the `build` task.
 
 	$ gulp css
 
 -
 
-**Concatenate JS files:** concatenates the specified JavaScript files in the given order. The idea is to keep JS files small and simple, and let this task join them into one. remember to add all the files you want to concatenate to the task.
+**Concatenate JS files:** concatenates the specified JavaScript files in the given order. The idea is to keep JS files small and simple (plugins can be added here as well), and let this task join them into one. remember to add all the files you want to concatenate to the JS configuration object.
 
 The contents of the `topBanner` and `bottomBanner` variables are included at the top and bottom of the concatenated javascript file. This can be used to add opening and closing statements to the end scripts file.
 
@@ -34,39 +34,36 @@ The task to concatenate js files is:
 
 	$ gulp js
 
-Babel is running on the concatenated file, to transpile ES6 into browser ready code.
+Babel is running on the concatenated file, to automatically transpile ES6 into browser ready code.
 
 -
 
-**Compress JS:** runs the UglifyJS parser/mangler/compressor library on the concatenated JavaScript file, and creates a copy renamed to `scripts.min.js` inside the /js/min/ folder. Note that this task has the previous task as a dependency, so it will trigger it first and for it to finish before running.
+**Compress JS:** runs the UglifyJS parser/mangler/compressor library on the concatenated JavaScript file, and creates a copy renamed to `scripts.min.js` inside the JS destination folder set in the config object. 
 
 	$ gulp compress
 
 -
 
-**Clean task:** removes the unused uncompressed scripts.js file, and the CSS sourcemaps created in the /css/maps/ folder. This task will trigger the production `style` task and `compress` task before running, to ensure the production ready assets are in place before removing the extra files.
+**Clean tasks:** removes and the sourcemaps created in the CSS or JS folders. Used to remove the unused uncompressed scripts.js file but this has been commented because the file is sometimes used, feel free to add if needed.
 
-	$ gulp clean
-
--
-
-**TinyPNG:** optimises .png, .jpg and .jpeg files using lossless image compression TinyPNG API. This task does not run automatically, so you have to run it manually when required. The task runs over the directory defined in the config. **Important:** this task requires an API key to run, you can get one for free at tinypng.com.
-
-	$ gulp tinypng
+	$ gulp cleanCss 
+	$ gulp cleanJs
 
 -
 
-**Build task for production:** this task runs `style`, `compress` and `clean` tasks at once, to generate all production ready assets and clean unused files from the project. Remember all tasks have their respective dependencies to ensure it all runs smoothly.
+**Optimising images:** optimises .png and .jpg files using lossless image compression. This task does not run automatically, so you have to run it manually when required. The task runs over the directory defined in the config.
+
+	$ gulp imgoptim
+
+-
+
+**Build task for production:** this task runs `style`, `compress` and `clean` tasks as a series, to generate all production ready assets and clean unused files from the project. Remember all tasks have their respective dependencies to ensure it all runs smoothly.
 
 	$ gulp build
 
-**Watch task:** watches for changes on Sass files to run the `style-dev` task, or changes in JS files to run `js` task. Should not used if the BrowserSync task is active, as both ot them watch the same files and run the same tasks.
-
-	$ gulp watch
-
 -
 ## Project configuration
-Update all the paths to point to the location of the current project and some other project specific details.
+Update all the paths to point to the location of the current project and some other project specific details. The `injectAssets` variable is used to activate the cache busting feature, and it requires the header and footer Tpl names so it can write the file paths.
 
 	const config = {
 	    scssDir: './public/scss',
@@ -74,9 +71,9 @@ Update all the paths to point to the location of the current project and some ot
 	    jsDest: './public/js/min',
 	    cssDir: './public/css',
 	    tplDir: './public/',
-	    tplName: 'index.html',
+        headerTpl: 'header.html',
+        footerTpl: 'footer.html',
 	    imgSrc: './public/img',
-	    tinyPngApiKey: '',
 	    injectAssets: true
 	};
 
@@ -91,14 +88,14 @@ JavaScript configuration object, define the files to be concatenated.
 ## Extending the build system
 This build system uses basic Gulp and NPM packages. To add more tasks and packages just install them using NPM and add them to the Gulpfile using require. If you need anything to be permanently added to the build system, create a pull request or let us know.
 
-## Experimental
+## Cache busting
 We've added a cache busting feature to the build system which injects the current time as part of the filename, to make use of this please make sure you adapt the inject tasks to match your filesas the task expects to find a filename as shown below:
 
-	style.20170503121812.css
+	style.20190422121812.css
 
 So it can replace it contantly every time the file gets compiled.
 
-To make the browser pull the correct files, you also need to add this to the `.htaccess` file:
+To make the browser pull the correct files, you also need to add the following rules to the `.htaccess` file of your project, making sure it matches the actual location of the compiled/minified files:
 
     RewriteRule ^assets\/css\/style.([0-9]+).css$ /assets/css/style.css [L]
     RewriteRule ^assets\/(js|js\/min)\/scripts.([0-9]+).(js|min.js)$ /assets/$1/scripts.$3 [L]

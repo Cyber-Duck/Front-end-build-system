@@ -4,18 +4,19 @@
  */
 
 const gulp = require('gulp');
+const babel = require('gulp-babel');
 const del = require('del');
-const autoprefixer = require('gulp-autoprefixer');
 const concat = require('gulp-concat');
+const sass = require('gulp-sass');
+const autoprefixer = require('gulp-autoprefixer');
 const minify = require('gulp-cssnano');
 const rename = require('gulp-rename');
-const sass = require('gulp-sass');
 const sourcemaps = require('gulp-sourcemaps');
 const uglify = require('gulp-uglify');
 const inject = require('gulp-inject-string');
 const header = require('gulp-header');
 const footer = require('gulp-footer');
-const babel = require('gulp-babel');
+const imagemin = require('gulp-imagemin');
 const pkg = require('./package.json');
 
 /*
@@ -27,9 +28,9 @@ const config = {
     jsDest: './public/js/min',
     cssDir: './public/css',
     tplDir: './public/',
-    tplName: 'index.html',
+    headerTpl: 'index.html',
+    footerTpl: 'index.html',
     imgSrc: './public/img',
-    tinyPngApiKey: '',
     injectAssets: true
 };
 
@@ -99,8 +100,8 @@ function css () {
 function injectCss () {
     'use strict';
     let stylesheet = RegExp('style.([0-9]+).css');
-    return gulp.src(config.tplDir + config.tplName)
-        .pipe(inject.replace(stylesheet, 'style.' + nowHash + '.css'))
+    return gulp.src(config.tplDir + config.headerTpl)
+        .pipe(inject.replace(stylesheet, `style.${nowHash}.css`))
         .pipe(gulp.dest(config.tplDir));
 };
 
@@ -163,9 +164,9 @@ function injectJs () {
     'use strict';
     let scriptMin = RegExp('scripts.([0-9]+).min.js');
     let script = RegExp('scripts.([0-9]+).js');
-    return gulp.src(config.tplDir + config.tplName)
-        .pipe(inject.replace(scriptMin, 'scripts.' + nowHash + '.min.js'))
-        .pipe(inject.replace(script, 'scripts.' + nowHash + '.js'))
+    return gulp.src(config.tplDir + config.footerTpl)
+        .pipe(inject.replace(scriptMin, `scripts.${nowHash}.min.js`))
+        .pipe(inject.replace(script, `scripts.${nowHash}.js`))
         .pipe(gulp.dest(config.tplDir));
 };
 
@@ -190,16 +191,26 @@ async function cleanJs () {
 };
 
 /*
- * Optimise images using TinyPNG API
+ * Optimise theme images
  */
-function tinypng () {
+function imgoptim () {
     'use strict';
     return gulp.src([
         config.imgSrc + '/**/*.png',
         config.imgSrc + '/**/*.jpg',
         config.imgSrc + '/**/*.jpeg'
     ])
-        .pipe(tinypng(config.tinyPngApiKey))
+        .pipe(imagemin([
+            imagemin.gifsicle({
+                interlaced: true
+            }),
+            imagemin.jpegtran({
+                progressive: true
+            }),
+            imagemin.optipng({
+                optimizationLevel: 5
+            })
+        ]))
         .pipe(gulp.dest(config.imgSrc));
 };
 
@@ -246,7 +257,7 @@ exports.compress = compress;
 exports.injectJs = injectJs;
 exports.cleanCss = cleanCss;
 exports.cleanJs = cleanJs;
-exports.tinypng = tinypng;
+exports.imgoptim = imgoptim;
 exports.devWatch = devWatch;
 exports.build = build;
 
