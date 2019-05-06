@@ -1,14 +1,16 @@
 # CD Front end build system
-**Important**: If updating an existing site to the new build system, please ensure the website templates point to the correct locations and file names for CSS and JavaScript files, since they may have changed from previous locations/build systems. Also, run the `gulp build` task and test before pushing anything to live or testing sites.
-
-**Requirements**: You must have at least Node.js 8.0 installed, as many of the packages use JS Promises not available on older versions of Node, and Gulp 4 installed globally on your system, any other version will throw a mismatch error with local Gulp.
+Cyber-Duck configuration for building front end assets for any project.
 
 To install, just copy the `package.json` file and `Gulpfile.js` to the public root of your application, and update the `config` object where required. Once all variables are updated, navigate to the public folder of the project and run `npm install` to download all the packages. It may take a few minutes. Remember to update the top of the `package.json` file with your project details, as these are being used in the banner for the JS files.
 
-Note that for CSS authoring, autoprefixer is installed by default and configured for 2 latest browser versions, so no prefixes or prefix mixins are required. Check [autoprefixer documentation](https://github.com/postcss/autoprefixer) to modify the support for older browsers.
+**Important**: If updating a site from previous versions of the build system into this new version, please ensure the website templates point to the correct locations and the file names for CSS and JavaScript files are correct (Not Applicable if using a different Cache Busting method), since they may have changed from previous locations/build systems. Also, run the `gulp build` task and test before pushing anything to live or testing sites.
+
+**Requirements**: You must have at least Node.js 8.0 installed, as many of the packages use JS Promises not available on older versions of Node. Also Gulp 4 must be installed globally on your system, any other version will throw a mismatch error with local Gulp, or the new function based syntax will not work properly.
+
+Note that for CSS authoring, autoprefixer is installed by default and configured for 2 latest browser versions, so no prefixes or prefix mixins are required when writing CSS. Check [autoprefixer documentation](https://github.com/postcss/autoprefixer) to modify the support for older browsers.
 
 ## Available tasks
-**Gulp default task:** runs the watch task used for development. It watches for changes on Sass files to run the `style-dev` task, or changes in JS files to run `js` task. It also runs the cache busting tasks (injectCss & injectJs) if selected in the config object.
+**Gulp default task:** runs the watch task used for development. It watches for changes on Sass files to run the `cssDev` task, or changes in JS files to run `js` task. It also runs the cache busting tasks (injectCss & injectJs) if selected in the config object.
 	
 	$ gulp
 
@@ -26,7 +28,7 @@ Note that for CSS authoring, autoprefixer is installed by default and configured
 
 -
 
-**Concatenate JS files:** concatenates the specified JavaScript files in the given order. The idea is to keep JS files small and simple (plugins can be added here as well), and let this task join them into one. remember to add all the files you want to concatenate to the JS configuration object.
+**Concatenate JS files:** concatenates the specified JavaScript files in the given order. The idea is to keep JS files small and simple (plugins can be added here as well), and let this task join all the files into one. Remember to add all the files you want to concatenate, into the JS configuration object at the top of the Gulpfile.
 
 The contents of the `topBanner` and `bottomBanner` variables are included at the top and bottom of the concatenated javascript file. This can be used to add opening and closing statements to the end scripts file.
 
@@ -95,7 +97,7 @@ We've added a cache busting feature to the build system which injects the curren
 
 So it can replace it contantly every time the file gets compiled.
 
-To make the browser pull the correct files, you also need to add the following rules to the `.htaccess` file of your project, making sure it matches the actual location of the compiled/minified files:
+To make the browser get the correct files, you also need to add the following rules to the `.htaccess` file of your project, making sure it matches the actual location of the compiled/minified files:
 
     RewriteRule ^assets\/css\/style.([0-9]+).css$ /assets/css/style.css [L]
     RewriteRule ^assets\/(js|js\/min)\/scripts.([0-9]+).(js|min.js)$ /assets/$1/scripts.$3 [L]
