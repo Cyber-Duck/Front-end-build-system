@@ -9,7 +9,7 @@ const del = require('del');
 const concat = require('gulp-concat');
 const sass = require('gulp-sass');
 const autoprefixer = require('gulp-autoprefixer');
-const minify = require('gulp-cssnano');
+const minify = require('gulp-clean-css');
 const rename = require('gulp-rename');
 const sourcemaps = require('gulp-sourcemaps');
 const uglify = require('gulp-uglify');
@@ -36,23 +36,40 @@ const config = {
 
 const jsFiles = [
     config.jsSrc + '/main.js', 
-    config.jsSrc + '/another.js', 
-    config.jsSrc + '/test.js'
+    config.jsSrc + '/another.js',
 ];
+
+const CleanCssOptions = {
+    compatibility: '*'
+};
 
 /*
  * Current date
  */
 let date = new Date();
-let day = String('00' + date.getDate()).slice(-2);
-let month = String('00' + (date.getMonth() + 1)).slice(-2);
-let year = date.getFullYear();
-let hour = String('00' + date.getHours()).slice(-2);
-let minute = String('00' + date.getMinutes()).slice(-2);
-let second = String('00' + date.getSeconds()).slice(-2);
+function generateDate (date) {
+    let day = String('00' + date.getDate()).slice(-2);
+    let month = String('00' + (date.getMonth() + 1)).slice(-2);
+    let year = date.getFullYear();
+    let hour = String('00' + date.getHours()).slice(-2);
+    let minute = String('00' + date.getMinutes()).slice(-2);
+    let second = String('00' + date.getSeconds()).slice(-2);
 
-let now = `${day}/${month}/${year} @ ${hour}:${minute}`;
-let nowHash = `${year}${month}${day}${hour}${minute}${second}`;
+    let now = `${day}/${month}/${year} @ ${hour}:${minute}`;
+    return now;
+}
+
+function generateDateHash (date) {
+    let day = String('00' + date.getDate()).slice(-2);
+    let month = String('00' + (date.getMonth() + 1)).slice(-2);
+    let year = date.getFullYear();
+    let hour = String('00' + date.getHours()).slice(-2);
+    let minute = String('00' + date.getMinutes()).slice(-2);
+    let second = String('00' + date.getSeconds()).slice(-2);
+
+    let nowHash = `${year}${month}${day}${hour}${minute}${second}`;
+    return nowHash;
+}
 
 /*
  * Compile Sass for development
@@ -82,12 +99,7 @@ function css () {
         .pipe(autoprefixer({
             cascade: false
         }))
-        .pipe(minify({
-            zindex: false, 
-            discardComments: {
-                removeAll: true
-            }
-        }))
+        .pipe(minify({ CleanCssOptions }))
         .pipe(rename({
             suffix: '.min'
         }))
@@ -99,6 +111,7 @@ function css () {
  */
 function injectCss () {
     'use strict';
+    let nowHash = generateDateHash(new Date());
     let stylesheet = RegExp('style.([0-9]+).css');
     return gulp.src(config.tplDir + config.headerTpl)
         .pipe(inject.replace(stylesheet, `style.${nowHash}.css`))
@@ -122,8 +135,8 @@ $(document).ready(function () {
  */
 let bottomBanner = `
 /*
- * Last updated: ${now}
- */
+* Last updated: ${generateDate(new Date())}
+*/
 });`;
 
 /*
@@ -162,6 +175,7 @@ function compress () {
  */
 function injectJs () {
     'use strict';
+    let nowHash = generateDateHash(new Date());
     let scriptMin = RegExp('scripts.([0-9]+).min.js');
     let script = RegExp('scripts.([0-9]+).js');
     return gulp.src(config.tplDir + config.footerTpl)

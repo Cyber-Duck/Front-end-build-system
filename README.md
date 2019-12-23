@@ -22,7 +22,7 @@ Note that for CSS authoring, autoprefixer is installed by default and configured
 
 -
 
-**Sass compiling for production:** compiles sass with no sourcemaps, and runs `css-nano` to minify/compress the output with no sourcemaps. Runs with the `build` task.
+**Sass compiling for production:** compiles sass with no sourcemaps, and runs `gulp-clean-css` to minify/compress the output with no sourcemaps. Runs with the `build` task.
 
 	$ gulp css
 
@@ -79,12 +79,17 @@ Update all the paths to point to the location of the current project and some ot
 	    injectAssets: true
 	};
 
-JavaScript configuration object, define the files to be concatenated.
+JavaScript configuration object, defines the files to be concatenated.
 
 	const jsFiles = [
 	    config.jsSrc + '/main.js', 
-	    config.jsSrc + '/another.js', 
-	    config.jsSrc + '/test.js'
+	    config.jsSrc + '/another.js'
+	];
+
+CleanCSS configuration object, defines the options for CleanCSS. [All available options can be viewed here](https://github.com/jakubpawlowicz/clean-css#constructor-options).
+
+	const CleanCssOptions = [
+	    compatibility: '*'
 	];
 
 ## Extending the build system

@@ -2,3 +2,4 @@ node_modules
 public
 reports
 .gulp
+.DS_Store
