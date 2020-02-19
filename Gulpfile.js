@@ -121,7 +121,8 @@ function injectCss () {
 /*
  * Banner for JS file
  */
-let topBanner = `/*
+let topBanner = `
+/*
  * <%= pkg.name %>
  * <%= pkg.description %>
  * @version v<%= pkg.version %>
@@ -135,8 +136,8 @@ $(document).ready(function () {
  */
 let bottomBanner = `
 /*
-* Last updated: ${generateDate(new Date())}
-*/
+ * Last updated: ${generateDate(new Date())}
+ */
 });`;
 
 /*
@@ -146,8 +147,10 @@ function js () {
     'use strict';
     return gulp.src(jsFiles)
         .pipe(sourcemaps.init())
+        .pipe(babel({
+            presets: ['@babel/env']
+        }))
         .pipe(concat('scripts.js'))
-        .pipe(babel())
         .on('error', (e) => {
             console.log('>>> ERROR', e);
             this.emit('end');
