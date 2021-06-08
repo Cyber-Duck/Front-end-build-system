@@ -35,8 +35,8 @@ const config = {
 };
 
 const jsFiles = [
-    config.jsSrc + '/main.js', 
-    config.jsSrc + '/another.js',
+    config.jsSrc + '/main.js',
+    config.jsSrc + '/links.js',
 ];
 
 const CleanCssOptions = {
@@ -78,7 +78,7 @@ function generateDateHash (date) {
 function cssDev () {
     'use strict';
     return gulp
-        .src(config.scssDir + '/*.scss')
+        .src(config.scssDir + '/**/*.scss')
         .pipe(sourcemaps.init())
         .pipe(sass())
         .on('error', sass.logError)
@@ -93,7 +93,7 @@ function cssDev () {
  */
 function css () {
     'use strict';
-    return gulp.src(config.scssDir + '/*.scss')
+    return gulp.src(config.scssDir + '/**/*.scss')
         .pipe(sass())
         .on('error', sass.logError)
         .pipe(autoprefixer({
@@ -210,21 +210,9 @@ async function cleanJs () {
 function imgoptim () {
     'use strict';
     return gulp.src([
-        config.imgSrc + '/**/*.png',
-        config.imgSrc + '/**/*.jpg',
-        config.imgSrc + '/**/*.jpeg'
+        config.imgSrc + '/**/*',
     ])
-        .pipe(imagemin([
-            imagemin.gifsicle({
-                interlaced: true
-            }),
-            imagemin.jpegtran({
-                progressive: true
-            }),
-            imagemin.optipng({
-                optimizationLevel: 5
-            })
-        ]))
+        .pipe(imagemin())
         .pipe(gulp.dest(config.imgSrc));
 };
 
